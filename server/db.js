@@ -2,7 +2,7 @@
 const Pool = require("pg").Pool;
 // importing the Pool class from pg module
 // a pool is a connection pool, it manages multiple db connections
-require("dotenv").config;
+require("dotenv").config();
 
 // creating a new connection pool with these settings
 const pool = new Pool({
@@ -15,4 +15,4 @@ const pool = new Pool({
 
 // how you export code from one file so that it can be imported and used
 // in another file.
-module.export;
+module.exports = pool;

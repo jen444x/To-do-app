@@ -28,8 +28,15 @@ app.use(express.json()); // makes data available on req.body
 // (req, res) parameters passed in every request
 app.post("/todos", async (req, res) => {
   try {
+    const name = req.body.name;
     const description = req.body.description;
-    console.log(description);
+
+    const newTodo = await pool.query(
+      "INSERT INTO todo (name, description) VALUES ($1, $2) RETURNING *",
+      [name, description]
+    );
+
+    res.json(newTodo.rows[0]);
   } catch (error) {
     console.log(error.message);
   }

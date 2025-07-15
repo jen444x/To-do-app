@@ -1,7 +1,7 @@
-CREATE DATABASE perntodo;
+CREATE DATABASE todo_app;
 
 CREATE TABLE todo(
     todo_id SERIAL PRIMARY KEY, 
-    name VARCHAR(255)
+    name VARCHAR(255),
     description VARCHAR(255)
 )
