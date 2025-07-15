@@ -69,11 +69,39 @@ app.get("/todos/:id", async (req, res) => {
   }
 });
 
-// get all
-// delete 1
-// delete multiple
-// delete all
-// edit
+// edit one todo
+app.put("/todos/:id", async (req, res) => {
+  try {
+    const name = req.body.name;
+    const description = req.body.description;
+    const id = req.params.id;
+
+    const updateTodo = await pool.query(
+      "UPDATE todo SET name = $1, description = $2 WHERE todo_id = $3 RETURNING *",
+      [name, description, id]
+    );
+
+    res.json(updateTodo.rows);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+// delete one todo
+app.delete("/todos/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const deleteTodo = await pool.query(
+      "DELETE FROM todo WHERE todo_id = $1 RETURNING *",
+      [id]
+    );
+
+    res.json(deleteTodo.rows);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 
 app.listen(PORT, () => {
   // starts the server and tells it to listen for requests on port 5050.
