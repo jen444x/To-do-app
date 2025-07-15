@@ -54,6 +54,20 @@ app.get("/todos", async (req, res) => {
 });
 
 // get one todo
+// :id is a route parameter, a placeholder for a dynamic value
+app.get("/todos/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const todo = await pool.query("SELECT * FROM todo WHERE todo_id = $1", [
+      id,
+    ]);
+
+    res.json(todo.rows[0]);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 
 // get all
 // delete 1
