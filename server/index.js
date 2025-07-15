@@ -22,7 +22,6 @@ app.use(express.json()); // makes data available on req.body
 
 // ROUTES
 // create a todo
-
 // route handler that listens for post request in this URl /todos
 // async makes the function asyncrounous so i can use await
 // (req, res) parameters passed in every request
@@ -36,13 +35,26 @@ app.post("/todos", async (req, res) => {
       [name, description]
     );
 
+    // sends a json formatted response. sets content-type head to applications/json.
+    // converts JS object into a JSON string fro the client
     res.json(newTodo.rows[0]);
   } catch (error) {
     console.log(error.message);
   }
 });
 
-// get 1
+// get all todos
+app.get("/todos", async (req, res) => {
+  try {
+    const allTodos = await pool.query("SELECT * FROM todo");
+    res.json(allTodos.rows);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+// get one todo
+
 // get all
 // delete 1
 // delete multiple
