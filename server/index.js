@@ -26,20 +26,29 @@ app.use(express.json()); // makes data available on req.body
 // async makes the function asyncrounous so i can use await
 // (req, res) parameters passed in every request
 app.post("/todos", async (req, res) => {
-  try {
-    const name = req.body.name;
-    const description = req.body.description;
+  // ? - if name is not undefined or null, trim it
+  // trim() - gets rid of whitespace. make sure name is filled in and not just spaces
+  const name = req.body.name?.trim();
+  const description = req.body.description?.trim();
 
+  // falsy - empty string, null, undefined
+  if (!name) {
+    return res.status(400).json({ error: "Task name is required." });
+  }
+
+  try {
+    // if description is blank, add null
     const newTodo = await pool.query(
       "INSERT INTO todo (name, description) VALUES ($1, $2) RETURNING *",
-      [name, description]
+      [name, description === "" ? null : description]
     );
 
     // sends a json formatted response. sets content-type head to applications/json.
     // converts JS object into a JSON string fro the client
-    res.json(newTodo.rows[0]);
+    res.status(201).json(newTodo.rows[0]);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -47,9 +56,10 @@ app.post("/todos", async (req, res) => {
 app.get("/todos", async (req, res) => {
   try {
     const allTodos = await pool.query("SELECT * FROM todo");
-    res.json(allTodos.rows);
+    res.status(200).json(allTodos.rows);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -63,43 +73,92 @@ app.get("/todos/:id", async (req, res) => {
       id,
     ]);
 
-    res.json(todo.rows[0]);
+    // check if no row was found
+    if (todo.rows.length === 0) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    res.status(200).json(todo.rows[0]);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // edit one todo
 app.put("/todos/:id", async (req, res) => {
+  const name = req.body.name?.trim();
+  const description = req.body.description?.trim();
+  const id = req.params.id;
+
+  // check if no fields were provided
+  // check like this instead of (!desc) bc maybe they wanna clear it
+  // undefined means they sent nothing at all
+  if (name === undefined && description === undefined) {
+    return res.status(400).json({ error: "No fields to update." });
+  }
+
+  // reject empty name
+  if (name === "") {
+    return res.status(400).json({ error: "Task name cannot be empty." });
+  }
+
+  // build dynamic set
+  const fields = []; // strings like "name = $1"
+  const values = []; // actual values to substitute into query
+  let paramIndex = 1; // track which $1, $2 to use
+
+  if (name !== undefined) {
+    fields.push(`name = $${paramIndex++}`);
+    values.push(name);
+  }
+
+  if (description !== undefined) {
+    fields.push(`description = $${paramIndex++}`);
+    values.push(description === "" ? null : description);
+  }
+
+  values.push(id); // for WHERE clause. param index is already updated since we did postincrement
+
   try {
-    const name = req.body.name;
-    const description = req.body.description;
-    const id = req.params.id;
+    // build query
+    const query = `UPDATE todo SET ${fields.join(
+      ", "
+    )} WHERE todo_id = $${paramIndex} RETURNING *`;
 
-    const updateTodo = await pool.query(
-      "UPDATE todo SET name = $1, description = $2 WHERE todo_id = $3 RETURNING *",
-      [name, description, id]
-    );
+    // run query
+    const updateTodo = await pool.query(query, values);
 
-    res.json(updateTodo.rows);
+    if (updateTodo.rows.length === 0) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    res.json(updateTodo.rows[0]);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // delete one todo
 app.delete("/todos/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
+  const id = req.params.id;
 
+  try {
     const deleteTodo = await pool.query(
       "DELETE FROM todo WHERE todo_id = $1 RETURNING *",
       [id]
     );
 
-    res.json(deleteTodo.rows);
+    // check if nothing was deleted
+    if (deleteTodo.length === 0) {
+      res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.status(200).json(deleteTodo.rows[0]);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
