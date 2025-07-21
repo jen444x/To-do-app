@@ -27,14 +27,14 @@ const InputTodo = () => {
         <input
           type="text"
           className="form-control"
-          placeholder="Task name"
+          placeholder="Task Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <input
           type="text"
           className="form-control"
-          placeholder="Description (optional)"
+          placeholder="Description (Optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
