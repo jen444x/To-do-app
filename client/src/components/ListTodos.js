@@ -1,8 +1,10 @@
 import React, { Fragment, useEffect, useState } from "react";
 
 import EditTodo from "./EditTodo";
+import ListTodo from "./ListTodo";
 
 const ListTodos = () => {
+  // we will have a list of todos, that will be changing, the default value is an empty array
   const [todos, setTodos] = useState([]);
 
   // delete todo function
@@ -49,7 +51,9 @@ const ListTodos = () => {
         <tbody>
           {todos.map((todo) => (
             <tr key={todo.todo_id}>
-              <td>{todo.name}</td>
+              <td>
+                <ListTodo todo={todo} />
+              </td>
               <td>{todo.description}</td>
               <td>
                 <EditTodo todo={todo} />

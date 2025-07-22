@@ -31,7 +31,7 @@ const EditTodo = ({ todo }) => {
         type="button"
         className="btn btn-warning"
         data-toggle="modal"
-        data-target={`#id${todo.todo_id}`}
+        data-target={`#editModal${todo.todo_id}`}
         onClick={() => {
           setName(todo.name ?? "");
           setDescription(todo.description ?? "");
@@ -40,7 +40,7 @@ const EditTodo = ({ todo }) => {
         Edit
       </button>
 
-      <div className="modal" id={`id${todo.todo_id}`}>
+      <div className="modal" id={`editModal${todo.todo_id}`}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
