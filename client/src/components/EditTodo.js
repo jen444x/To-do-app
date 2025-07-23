@@ -1,12 +1,17 @@
 import React, { Fragment, useState } from "react";
 
 const EditTodo = ({ todo }) => {
-  const [name, setName] = useState(todo.name);
-  const [description, setDescription] = useState(todo.description);
+  const [name, setName] = useState(todo.name ?? "");
+  const [description, setDescription] = useState(todo.description ?? "");
+  const [error, setError] = useState(null);
 
   // edit description function
   const updateData = async (e) => {
     e.preventDefault();
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
 
     try {
       const body = { name, description };
@@ -19,9 +24,14 @@ const EditTodo = ({ todo }) => {
         }
       );
 
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
+
       window.location = "/";
     } catch (error) {
       console.error(error.message);
+      setError("Something went wrong. Please try again later.");
     }
   };
 
@@ -35,6 +45,7 @@ const EditTodo = ({ todo }) => {
         onClick={() => {
           setName(todo.name ?? "");
           setDescription(todo.description ?? "");
+          setError(null);
         }}
       >
         Edit
@@ -63,13 +74,13 @@ const EditTodo = ({ todo }) => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+              {error && <div className="alert alert-danger mt-3">{error}</div>}
             </div>
 
             <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-warning"
-                data-dismiss="modal"
                 onClick={(e) => updateData(e)}
               >
                 Edit

@@ -3,9 +3,15 @@ import React, { Fragment, useState } from "react";
 const InputTodo = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState(null);
 
   const onSubmitForm = async (e) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
     try {
       const body = { name, description };
       const response = await fetch("http://localhost:5050/todos", {
@@ -14,9 +20,14 @@ const InputTodo = () => {
         body: JSON.stringify(body),
       });
 
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
+
       window.location = "/";
     } catch (error) {
       console.error(error.message);
+      setError("Something went wrong. Please try again later.");
     }
   };
 
@@ -40,6 +51,7 @@ const InputTodo = () => {
         />
         <button className="btn btn-success">Add</button>
       </form>
+      {error && <div className="alert alert-danger mt-3">{error}</div>}
     </Fragment>
   );
 };

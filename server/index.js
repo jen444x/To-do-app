@@ -28,6 +28,7 @@ app.use(express.json()); // makes data available on req.body
 app.post("/todos", async (req, res) => {
   // ? - if name is not undefined or null, trim it
   // trim() - gets rid of whitespace. make sure name is filled in and not just spaces
+
   const name = req.body.name?.trim();
   const description = req.body.description?.trim();
 
@@ -151,7 +152,7 @@ app.delete("/todos/:id", async (req, res) => {
     );
 
     // check if nothing was deleted
-    if (deleteTodo.length === 0) {
+    if (deleteTodo.rows.length === 0) {
       res.status(404).json({ error: "Todo not found" });
     }
 
