@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const pool = require("../db.js");
+const pool = require("../db");
 
 // create a todo
 // route handler that listens for post request in this URl /todos
